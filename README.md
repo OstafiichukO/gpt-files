@@ -1,1 +1,1 @@
-# gpt-files
+#  Project to chat with your documents.
