@@ -1,8 +1,11 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function FilesPage() {
+  const supabase = createClientComponentClient({ isSingleton: true });
+
   // TODO: request documents from supabase
   const documents: any[] = [];
 
@@ -13,18 +16,24 @@ export default function FilesPage() {
           type="file"
           name="file"
           className="cursor-pointer w-full max-w-xs"
-          onChange={async (e) => {
+          onChange={async e => {
             const selectedFile = e.target.files?.[0];
 
             if (selectedFile) {
-              // TODO: Upload the file to supabase storage
+              // await supabase.storage
+              await supabase.storage
+                .from('files')
+                .upload(
+                  `${crypto.randomUUID()}/${selectedFile.name}`,
+                  selectedFile
+                );
             }
           }}
         />
       </div>
       {documents && (
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-          {documents.map((document) => (
+          {documents.map(document => (
             <div
               className="flex flex-col gap-2 justify-center items-center border rounded-md p-4 sm:p-6 text-center overflow-hidden cursor-pointer hover:bg-slate-100"
               onClick={async () => {
