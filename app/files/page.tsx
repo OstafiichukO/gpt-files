@@ -1,13 +1,28 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
+import { toast } from '@/components/ui/use-toast';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useQuery } from '@tanstack/react-query';
 
 export default function FilesPage() {
   const supabase = createClientComponentClient({ isSingleton: true });
 
-  // TODO: request documents from supabase
-  const documents: any[] = [];
+  const { data: documents } = useQuery(['files'], async () => {
+    const { data, error } = await supabase
+      .from('documents_with_storage_path')
+      .select();
+
+    if (error) {
+      toast({
+        variant: 'destructive',
+        description: 'Failed to fetch documents',
+      });
+      throw error;
+    }
+
+    return data;
+  });
 
   return (
     <div className="max-w-6xl m-4 sm:m-10 flex flex-col gap-8 grow items-stretch">
@@ -20,7 +35,6 @@ export default function FilesPage() {
             const selectedFile = e.target.files?.[0];
 
             if (selectedFile) {
-              // await supabase.storage
               await supabase.storage
                 .from('files')
                 .upload(
@@ -37,7 +51,19 @@ export default function FilesPage() {
             <div
               className="flex flex-col gap-2 justify-center items-center border rounded-md p-4 sm:p-6 text-center overflow-hidden cursor-pointer hover:bg-slate-100"
               onClick={async () => {
-                // TODO: download file from supabase storage
+                const { data, error } = await supabase.storage
+                  .from('files')
+                  .createSignedUrl(document.storage_object_path, 60);
+
+                if (error) {
+                  toast({
+                    variant: 'destructive',
+                    description: 'Failed to download file. Please try again.',
+                  });
+                  return;
+                }
+
+                window.location.href = data.signedUrl;
               }}
             >
               <svg
