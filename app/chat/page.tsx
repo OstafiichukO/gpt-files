@@ -24,7 +24,7 @@ export default function ChatPage() {
   const isReady = !!generateEmbedding;
 
   useEffect(() => {
-    console.log('messages', messages)
+    console.log('messages =>', messages)
   }, [messages])
 
   return (
