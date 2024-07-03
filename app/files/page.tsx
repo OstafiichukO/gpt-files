@@ -47,9 +47,10 @@ export default function FilesPage() {
       </div>
       {documents && (
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-          {documents.map(document => (
+          {documents.map((document, index) => (
             <div
               className="flex flex-col gap-2 justify-center items-center border rounded-md p-4 sm:p-6 text-center overflow-hidden cursor-pointer hover:bg-slate-100"
+              key={index}
               onClick={async () => {
                 const { data, error } = await supabase.storage
                   .from('files')
