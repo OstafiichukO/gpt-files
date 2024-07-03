@@ -4,9 +4,10 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useQuery } from '@tanstack/react-query';
+import { Database } from '@/supabase/functions/_lib/database';
 
 export default function FilesPage() {
-  const supabase = createClientComponentClient({ isSingleton: true });
+  const supabase = createClientComponentClient<Database>({ isSingleton: true });
 
   const { data: documents } = useQuery(['files'], async () => {
     const { data, error } = await supabase
@@ -52,6 +53,13 @@ export default function FilesPage() {
               className="flex flex-col gap-2 justify-center items-center border rounded-md p-4 sm:p-6 text-center overflow-hidden cursor-pointer hover:bg-slate-100"
               key={index}
               onClick={async () => {
+                if (!document.storage_object_path) {
+                  toast({
+                    variant: 'destructive',
+                    description: 'Failed to download file, please try again.',
+                  });
+                  return;
+                }
                 const { data, error } = await supabase.storage
                   .from('files')
                   .createSignedUrl(document.storage_object_path, 60);

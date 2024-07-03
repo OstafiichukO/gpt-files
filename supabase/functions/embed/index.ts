@@ -2,6 +2,7 @@
 import 'https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts';
 
 import { createClient } from '@supabase/supabase-js';
+import { Database } from '../_lib/database.ts';
 
 const model = new Supabase.ai.Session('gte-small');
 
@@ -34,7 +35,7 @@ Deno.serve(async req => {
     );
   }
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     global: {
       headers: {
         authorization,
